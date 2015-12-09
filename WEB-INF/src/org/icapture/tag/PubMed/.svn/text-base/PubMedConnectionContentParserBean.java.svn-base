@@ -1,0 +1,293 @@
+package org.icapture.tag.PubMed;
+
+import java.lang.String;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class PubMedConnectionContentParserBean {
+	
+	/*
+	 * Default Constructor
+	 * @param
+	 */
+	public PubMedConnectionContentParserBean() {
+		
+	}
+	
+	/******************************************
+	/ Parse out the PubMed ID's into a comma- *
+	 * delimited string.                      *
+	 *                                        *
+	 * @param idContent                       *
+	 * @return                                *
+	 ******************************************/
+	public String parsePubMedId (String idContent) {
+		String idList = "";
+		
+		//---------- First, parse out the number of ID's ----------//
+		String[] RetMaxTemp0 = idContent.split("\t<RetMax>"); // get rid of "\t<RetMax>"
+		String[] RetMaxTemp1 = RetMaxTemp0[1].split("</RetMax>\t"); // get rid of "</RetMax>\t"
+		
+		int RetMax = Integer.parseInt(RetMaxTemp1[0]);
+		//idArray = new String[RetMax]; // Set idArray to the size of RetMax
+		//---------------------------------------------------------//
+		
+		if (RetMax > 0) { // process only if there are IDs found
+			//-------------- Second, parse out the ID's --------------//
+			String[] idTemp0 = RetMaxTemp1[1].split("\t\t<Id>"); // get rid of "\t\t<Id>"
+		
+			// for each array index, get rid of "/Id>\t"
+			String[] idTemp1 = idTemp0[1].split("</Id>");
+			String id = idTemp1[0];
+			idList= id;
+		
+			for (int i = 1; i < RetMax; i++) {
+				String[] idTemp2 = idTemp0[i+1].split("</Id>");
+				id = idTemp2[0];
+				idList = idList + "," + id;
+			}
+		}
+		//--------------------------------------------------------//
+		
+		return idList;
+	}
+	
+	
+	public ArrayList<PubMedAbstract> getAbstractList (String fetchContent) {
+		ArrayList <PubMedAbstract> abstractList = new ArrayList <PubMedAbstract>();
+		
+		// First separate content by articles
+		String [] articleArray = fetchContent.split("\n\n");
+		
+		for (int i = 0; i < articleArray.length; i++) {
+			
+			String PMID = "";
+			String abstractTitle = "";
+			String abstractText = "";
+			Date abstractDate = new Date();
+			ArrayList<String> authors = new ArrayList<String>();
+			ArrayList<String> meshTerms = new ArrayList<String>();
+			
+			String currentArticle = articleArray[i]; // current article
+			String[] tempArray = currentArticle.split("\n"); // split into lines
+			
+			//---------- Read through each line and match the desired terms ----------//
+			String prevTag = "";
+			
+			for (int j = 0; j < tempArray.length; j++) {
+			
+				String line = tempArray[j];
+				
+				String currentTag = line.substring(0, 6);
+				String lineLessTag = line.replaceFirst(currentTag, "");
+				
+				if (currentTag.indexOf("PMID-") == 0) { // get PMID
+					PMID = lineLessTag;
+				}
+				else if (currentTag.indexOf("TI  -") == 0) { // get Title
+					abstractTitle = lineLessTag;
+				}
+				else if (currentTag.indexOf("AB  -") == 0) { // get Text
+					abstractText = lineLessTag;
+				}
+				else if (currentTag.indexOf("AU  -") == 0) { // get Authors
+					String[] authorArray = lineLessTag.split(", ");
+					for(int k = 0; k < authorArray.length; k++) {
+						String author = authorArray[k];
+						authors.add(author);
+					}
+					//authors.add(lineLessTag);
+				}
+				else if (currentTag.indexOf("MHDA-") == 0) { // get Date
+					String[] tempDate1 = lineLessTag.split(" ");
+					String[] tempDate2 = tempDate1[0].split("/");
+					
+					//System.out.println(lineLessTag);
+					int year = Integer.parseInt(tempDate2[0]) - 1;
+					int month = Integer.parseInt(tempDate2[1]);
+					int date = Integer.parseInt(tempDate2[2]);
+					
+					abstractDate.setYear(year);
+					abstractDate.setMonth(month);
+					abstractDate.setDate(date);
+					
+				}
+				else if (currentTag.indexOf("MH  -") == 0) { // get Mesh Terms
+					
+					String[] meshArray = lineLessTag.split(", ");
+					for(int k = 0; k < meshArray.length; k++) {
+						String term = meshArray[k];
+						meshTerms.add(term);
+					}
+					
+					//meshTerms.add(lineLessTag);
+				}
+				else if (currentTag.indexOf("     ") == 0) { // continue from previous line
+					if (prevTag.indexOf("AB  -") == 0) {
+						abstractText = abstractText + " " + lineLessTag;
+					}
+					else if (prevTag.indexOf("TI  -") == 0) {
+						abstractTitle = abstractTitle + " " + lineLessTag;
+					}
+				}
+				
+				// set previous tag to current tag
+				if (!currentTag.matches("      ")) {
+					prevTag = currentTag;
+				}
+			}
+			
+			PubMedAbstract PMAbstract = new PubMedAbstract(PMID, abstractTitle, abstractText,
+														   abstractDate, authors, meshTerms);
+						
+			abstractList.add(PMAbstract); // add to abstract list
+		}
+		
+		return abstractList;
+	}
+	
+	
+	/********************************************
+	 * Parse out abstract of the PubMed article *
+	 * 
+	 * @param	
+	 * @return   
+	 ********************************************/
+	public String parsePubMedAbstract (String fetchContent) {
+		String abstractText;
+
+		String[] abstractTemp0 = fetchContent.split("<AbstractText>"); // get rid of "\t\t\t<AbstractText>"
+		String abstractTempText = "";
+		
+		if (abstractTemp0.length > 1) {
+			abstractTempText = abstractTemp0[1];
+		}
+			
+		String[] abstractTemp1 = abstractTempText.split("</AbstractText"); // get rid of "</AbstractText"
+		abstractText = abstractTemp1[0];
+
+		return abstractText;
+	}
+	
+	/**********************************************************
+	 * Parse out Year, Month, and Day and return a Date object
+	 * 
+	 * @param
+	 * @return   
+	 **********************************************************/
+	public Date parseAbstractDate (String fetchContent) {
+		int abstractYear;
+		int abstractMonth;
+		int abstractDay;
+		Date abstractDate;
+
+		// ------ Parse Year ------ //
+		String[] yearTemp0 = fetchContent.split("<Year>");
+		String yearTempText = "";
+		
+		if (yearTemp0.length > 1) {
+			yearTempText = yearTemp0[1];
+		}
+		
+		String [] yearTemp1 = yearTempText.split("</Year");
+		abstractYear = Integer.valueOf(yearTemp1[0]).intValue();
+		// ------------------------ //
+		
+		// ------ Parse Month ------ //
+		String[] monthTemp0 = fetchContent.split("<Month>");
+		String monthTempText = "";
+		
+		if (monthTemp0.length > 1) {
+			monthTempText = monthTemp0[1];
+		}
+		
+		String [] monthTemp1 = monthTempText.split("</Month");
+		
+		if (containsDigit(monthTemp1[0])) {
+			abstractMonth = Integer.valueOf(monthTemp1[0]).intValue();
+		}
+		else {
+			abstractMonth = convertMonthTextToInt (monthTemp1[0]);
+		}
+		// ------------------------- //
+		
+		// ------ Parse Day ------ //
+		String[] dayTemp0 = fetchContent.split("<Day>");
+		String dayTempText = "";
+		
+		if (dayTemp0.length > 1) {
+			dayTempText = dayTemp0[1];
+		}
+		
+		String [] dayTemp1 = dayTempText.split("</Day");
+		abstractDay = Integer.valueOf(dayTemp1[0]).intValue();
+		// ----------------------- //
+		
+		abstractDate = new Date(abstractYear, abstractMonth, abstractDay);
+		
+		return abstractDate;
+	}
+	
+	
+	/**************************************************
+	 * Method that checks if the word contains a digit
+	 * 
+	 * @param
+	 * @return  
+	 **************************************************/ 
+	private boolean containsDigit (String word) {
+		
+		if ( word.contains("0") || word.contains("1") || word.contains("2") || word.contains("3") || 
+			 word.contains("4") || word.contains("5") || word.contains("6") || word.contains("7") || 
+			 word.contains("8") || word.contains("9") ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+	}
+
+	
+	/**************************************************
+	 * Method used to convert Month in text to digit
+	 * i.e. Jan -> 1, Feb -> 2...etc
+	 * 
+	 * @param
+	 * @return  
+	 **************************************************/ 
+	private int convertMonthTextToInt (String monthText) {
+		
+		int monthInt = 0;
+		monthText = monthText.toLowerCase();
+		
+		if (monthText.contains("jan"))
+			monthInt = 1;
+		else if (monthText.contains("feb"))
+			monthInt = 2;
+		else if (monthText.contains("mar"))
+			monthInt = 3;
+		else if (monthText.contains("apr"))
+			monthInt = 4;
+		else if (monthText.contains("may"))
+			monthInt = 5;
+		else if (monthText.contains("jun"))
+			monthInt = 6;
+		else if (monthText.contains("jul"))
+			monthInt = 7;
+		else if (monthText.contains("aug"))
+			monthInt = 8;
+		else if (monthText.contains("sep"))
+			monthInt = 9;
+		else if (monthText.contains("oct"))
+			monthInt = 10;
+		else if (monthText.contains("nov"))
+			monthInt = 11;
+		else if (monthText.contains("dec"))
+			monthInt = 12;
+		
+		return monthInt;
+	}
+	
+}

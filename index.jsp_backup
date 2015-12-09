@@ -1,0 +1,219 @@
+<%@ page import="java.util.*" %>
+<jsp:useBean id="PubCloudGenerator" class="org.icapture.tag.PubMed.PubMedCloudGeneratorBean" scope="session" />
+
+<HTML>
+
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<link href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<TITLE>PubCloud</TITLE>
+
+<BODY>
+<!-- -------------------------------- Title --------------------------------- -->
+<TABLE cellpadding="5" border="0" width="415">
+	<TR>
+		<TD><H1>PubCloud</H1></TD>
+		<TD><SPAN class="fine_print">Publication (<A HREF="http://www.cs.bell-labs.com/cm/cs/who/pfps/temp/web/www2007.org/posters/poster1046.pdf" TARGET="BLANK">PDF</A>) (<A HREF="http://www2007.org/htmlposters/poster1046/" TARGET="BLANK">HTML</A>)</SPAN></TD>
+		<TD><SPAN class="fine_print"><A HREF="legend.html" TARGET="_blank" ONCLICK="window.open('legend.html', 'PubCloud Legend', 'toolbar=no, directories=no, location=no, status=no, menubar=no, resizable=no, scrollbars=no, width=258,height=200'); return false">Cloud Legend</A></SPAN></TD>
+	</TR>
+</TABLE>
+<!-- ------------------------------------------------------------------------ -->
+
+
+<FORM method="GET">
+
+
+<!-- Required for query generation: PubMed Query and Cloud Type -->
+<TABLE cellpadding="5" width="850" >
+	<TR><TD>
+	<TABLE border="0" width="800">
+		<TR><TD>
+		<SPAN class="option_title">PubMed Query: <INPUT TYPE="text" NAME="query" SIZE="100"></SPAN>
+		</TD></TR>
+	</TABLE>
+	</TD></TR>
+	<TR><TD>
+	<TABLE border="0" width="500">
+		<TR>
+			<TD>
+			<SPAN class="option_title">Cloud Type: </SPAN>
+			</TD>
+			<TD>
+			<SPAN class="option_text"><INPUT TYPE="radio" NAME="type" VALUE="abstract" CHECKED> Abstracts</SPAN>
+			</TD>
+			<TD>
+			<SPAN class="option_text"><INPUT TYPE="radio" NAME="type" VALUE="author"> Authors</SPAN>
+			</TD>
+			<TD>
+			<SPAN class="option_text"><INPUT TYPE="radio" NAME="type" VALUE="mesh_term"> MeSH Terms</SPAN>
+			</TD>
+		</TR>
+	</TABLE>	
+	</TD></TR>
+</TABLE>
+<!-- ---------------------------------------------------------- -->
+
+<BR>
+
+<!-- ------------------- Control Panel ------------------------ -->
+<TABLE cellpadding="5" width="850" STYLE="border-style:dashed; border-width:thin; border-color:blue">
+	<TR>
+		<TD>
+		<SPAN class="option_panel_title">Control Panel</SPAN>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+		<SPAN class="option_title">Date Range: </SPAN>
+		</TD>
+		<TD>
+		<TABLE cellpadding="5" border="0" width="650">
+			<TR>
+				<TD>
+				<SPAN class="option_text">From <INPUT TYPE="text" NAME="startYear" SIZE="5"> to <INPUT TYPE="text" NAME="endYear" SIZE="5"> (Default: no range)</SPAN>
+				</TD>
+			</TR>
+		</TABLE>
+		</TD>
+	</TR>
+	
+	<TR>
+		<TD>
+		<SPAN class="option_title">Search Option: </SPAN>
+		</TD>
+		<TD>
+		<TABLE cellpadding="5" border="0" width="650">
+			<TR>
+				<TD>
+				<SPAN class="option_text"><INPUT TYPE="radio" NAME="option" VALUE="random" CHECKED> Randomly choose <INPUT TYPE="text" NAME="percent" SIZE="5" VALUE="10">% articles (Default: 10%)</SPAN>
+				</TD>
+			</TR>
+			<TR>
+				<TD>
+				<SPAN class="option_text"><INPUT TYPE="radio" NAME="option" VALUE="most_recent"> Most recent <INPUT TYPE="text" NAME="recent" SIZE="5" VALUE="100"> articles (Default: 100 articles)</SPAN>
+				</TD>
+			</TR>	
+		</TABLE>
+		</TD>
+	</TR>
+</TABLE>
+<!-- --------------------------------------------------------------- -->
+
+
+
+<!-- ------------------------ Buttons ------------------------------ -->
+<TABLE cellpadding="5" border="0" width="415">
+	<TR>
+		<TD>
+		<INPUT TYPE="submit" VALUE="Generate Cloud">
+		<INPUT TYPE="reset" VALUE="Reset">
+		</TD>
+	</TR>
+</TABLE>
+<!-- --------------------------------------------------------------_ -->
+</FORM>
+
+
+<%
+String query = request.getParameter("query");
+String startYear = request.getParameter("startYear");
+String endYear = request.getParameter("endYear");
+String type = request.getParameter("type");
+String option = request.getParameter("option");
+String percent = request.getParameter("percent");
+String recent = request.getParameter("recent");
+
+int percentValue = 10;
+int recentValue = 100;
+
+try {
+	percentValue = Integer.parseInt(percent);
+	recentValue = Integer.parseInt(recent);
+}
+catch (Exception e) {
+}
+
+if (query == null) {
+	//out.println("Await keyword search!");
+}
+else if (query == "") {
+	out.println("<FONT COLOR=\"red\"><B>ERROR:</B> You have not entered a PubMed query</FONT><BR>");
+}
+
+else if ( (option.equals("random")) && ((percentValue <= 0) || (percentValue > 100)) ) {
+	out.println("<FONT COLOR=\"red\"><B>ERROR:</B> You have specified an invalid % value</FONT><BR>");
+	out.println(percentValue + "% selected");
+}
+else if ( (option.equals("most_recent")) && (recentValue <= 0) ) {
+	out.println("<FONT COLOR=\"red\"><B>ERROR:</B> You have specified an invalid number of articles</FONT><BR>");
+	out.println(recentValue + " articles selected");
+}
+else {
+	String prevQuery = "";
+	String newQuery = prevQuery + " " + query;		
+	/************ Session Code ***************/
+	/*
+	HttpSession tsession = request.getSession();
+	String pQuery = tsession.getAttribute("pQuery");
+	String nQuery = pQuery + " " + query;
+	tsession.setAttribute("pQuery", nQuery);
+	*/
+	/*****************************************/
+
+	if (startYear.equals("")) {
+		startYear = "--";
+	}
+	if (endYear.equals("")) {
+		 endYear = "--";
+	}
+	
+	out.println("<SPAN class=\"option_text\">");
+	out.println("Query: <SPAN class=\"key\">" + query + "</SPAN><br>");
+	out.println("Cloud Type: <SPAN class=\"key\">" + type + "</SPAN><BR>");
+	out.println("From <SPAN class=\"key\">" + startYear + "</SPAN> to <SPAN class=\"key\">" + endYear + "</SPAN><BR>");
+	out.println("</SPAN>");
+
+	int optionValue = 10;
+
+	if (option.equals("random")) {
+		if (! percent.equals("")) {
+			optionValue = Integer.parseInt(percent);
+		}
+		else {
+			optionValue = 10;
+		}
+	}
+	else if (option.equals("most_recent")) {
+		if (! recent.equals("")) {
+			optionValue = Integer.parseInt(recent);
+		}
+		else {
+			optionValue = 100;
+		}
+	}
+	
+	boolean checkCloud = false;
+	checkCloud = PubCloudGenerator.mainBuildCloud(newQuery, startYear, endYear, type, option, optionValue);
+	
+	// make a split search string for later use
+	String keywordSplitSearchString = newQuery.replace(" ", "+");	
+
+	out.println("<TABLE border=\"0\"><TR><TD><BR><CENTER>");
+
+	String cloudHTML = "";
+	
+	if (checkCloud == true) {
+		cloudHTML = PubCloudGenerator.generateHtmlCloud();
+	}
+
+	out.println(cloudHTML);
+	out.println("</CENTER></TD></TR></TABLE>");
+}
+%>
+<BR>
+<SPAN class="fine_print">Comments or questions, please contact: <I><A HREF="mailto:bkuo@mrl.ubc.ca">Byron Kuo</A></I>. Copyright (c) 2006</SPAN>
+</BODY>
+</HTML>

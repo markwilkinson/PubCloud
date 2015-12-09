@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="457"
+   name=""
+   committed-date="2006-10-02T23:19:15.987793Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/work/org/apache/jsp"
+   last-author="bkuo"
+   kind="dir"
+   uuid="ddb880df-e0f7-0310-b7de-e4f196b62884"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="477"/>
+<entry
+   committed-rev="457"
+   name="index_jsp.java"
+   text-time="2006-10-03T21:40:49.573558Z"
+   committed-date="2006-10-02T23:19:15.987793Z"
+   checksum="e0bcf76f1b21e95315e86c0d4b3f7c6b"
+   last-author="bkuo"
+   kind="file"
+   prop-time="2006-10-03T21:40:49.563544Z"
+   revision="459"/>
+<entry
+   committed-rev="424"
+   name="index_jsp.class"
+   text-time="2006-09-01T22:13:16.511750Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="5aad336731e7f8f0b99c57b70cb28f81"
+   last-author="bkuo"
+   kind="file"
+   prop-time="2006-09-05T17:21:56.196713Z"
+   revision="445"/>
+</wc-entries>

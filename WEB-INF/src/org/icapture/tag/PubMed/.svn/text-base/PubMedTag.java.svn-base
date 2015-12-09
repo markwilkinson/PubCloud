@@ -1,0 +1,117 @@
+package org.icapture.tag.PubMed;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.icapture.tag.Tag;
+import org.icapture.tag.TagFeature;
+import org.icapture.tag.deprecated.Constants;
+
+public class PubMedTag extends Tag {
+	
+	public PubMedTag () {
+		tagFeatures.put("stemmedName", new TagFeature("?"));
+		tagFeatures.put("reprsentName", new TagFeature("?"));
+		tagFeatures.put("similarWordList", new TagFeature("?"));
+		tagFeatures.put("similarTags", new TagFeature(new ArrayList()));
+		tagFeatures.put("count", new TagFeature(0)); // absolute frequency
+		tagFeatures.put("totalAgeDays", new TagFeature(0)); // absolute number of days
+		tagFeatures.put("totalAgeDaysAverage", new TagFeature(0)); // average number of days
+		tagFeatures.put("frequency", new TagFeature(0)); // relative frequency, from 1 to 10
+		tagFeatures.put("recency", new TagFeature(0)); // relative recency, from 1 to 10
+		tagFeatures.put("authors", new TagFeature(new ArrayList()));
+		tagFeatures.put("URIs", new TagFeature(new ArrayList()));
+		tagFeatures.put("targetURL", new TagFeature("?"));
+		
+		//visual weighting for the tag = for use in generating HTML etc.
+		tagFeatures.put("color", new TagFeature(0));
+		tagFeatures.put("size", new TagFeature(0));
+		tagFeatures.put("position", null);
+	}
+	
+	
+	// Computation Methods
+	/*
+	 * Method used to compute relative frequency
+	 * on a scale of 1 to 10
+	 */
+	public void computeFrequency (int maxCount) {
+		float sqrtMax = (float) Math.sqrt(maxCount);
+		float sqrtCount = (float) Math.sqrt(getCount());
+		int frequency = (int) ((sqrtCount * 10) / sqrtMax);
+		setFrequency(frequency);
+		return;
+	}
+	
+	/*
+	 * Method used to compute relative recency
+	 * on a scale of 1 to 10
+	 */
+	public void computeRecency (int minDays, int maxDays) {
+		int dayRange = maxDays - minDays;
+		int tagTotalAgeDaysAverage = getTotalAgeDaysAverage();
+		
+		if (dayRange == 0)
+			dayRange = 1;
+		
+		int recency = ((tagTotalAgeDaysAverage - minDays) * 10) / dayRange;
+		setRecency(recency);
+		
+		//System.out.println("max:" + maxDays + "; min:" + minDays + "; avg:" + tagTotalAgeDaysAverage +
+		//		"; range:" + dayRange + "; true_range:" + (tagTotalAgeDaysAverage - minDays) + "; recency:" + recency);
+		
+		return;
+	}
+	
+	
+	// Setters and Getters
+	public String getStemmedName(){
+		return tagFeatures.get("stemmedName").fStringVal;
+	}
+	public void setStemmedName(String s){
+		tagFeatures.put("stemmedName", new TagFeature(s));
+	}
+	public String getRepresentName(){
+		return tagFeatures.get("representName").fStringVal;
+	}
+	public void setRepresentName(String s){
+		tagFeatures.put("representName", new TagFeature(s));
+	}
+	public String getSimilarWordList() {
+		return tagFeatures.get("similarWordList").fStringVal;
+	}
+	public void setSimilarWordList(String l){
+		tagFeatures.put("similarWordList", new TagFeature(l));
+	}
+	public int getFrequency(){
+		return tagFeatures.get("frequency").fIntVal;
+	}
+	public void setFrequency(int f){
+		tagFeatures.put("frequency", new TagFeature(f));
+	}
+	public int getRecency(){
+		return tagFeatures.get("recency").fIntVal;
+	}
+	public void setRecency(int f){
+		tagFeatures.put("recency", new TagFeature(f));
+	}
+	public int getTotalAgeDays(){
+		return tagFeatures.get("totalAgeDays").fIntVal;
+	}
+	public void setTotalAgeDays(int f){
+		tagFeatures.put("totalAgeDays", new TagFeature(f));
+	}
+	public int getTotalAgeDaysAverage(){
+		return tagFeatures.get("totalAgeDaysAverage").fIntVal;
+	}
+	public void setTotalAgeDaysAverage(int f){
+		tagFeatures.put("totalAgeDaysAverage", new TagFeature(f));
+	}
+	public int getCount() {
+		return tagFeatures.get("count").fIntVal;
+	}
+	public void setCount(int f){
+		tagFeatures.put("count", new TagFeature(f));
+	}	
+}

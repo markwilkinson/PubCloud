@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="424"
+   name=""
+   committed-date="2006-09-05T17:21:57.793063Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/WEB-INF/src/org/icapture/tag/deprecated"
+   last-author="bkuo"
+   kind="dir"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="445"/>
+<entry
+   committed-rev="424"
+   name="Constants.java"
+   text-time="2006-08-14T18:28:04.101238Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="5bf2f332d835fa3a138be4ae861a388e"
+   last-author="bkuo"
+   kind="file"/>
+</wc-entries>

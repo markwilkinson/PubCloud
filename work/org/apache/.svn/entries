@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="317"
+   name=""
+   committed-date="2006-08-08T19:19:18.937359Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/PubCloud/work/org/apache"
+   last-author="bkuo"
+   kind="dir"
+   uuid="ddb880df-e0f7-0310-b7de-e4f196b62884"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="477"/>
+<entry
+   name="jsp"
+   kind="dir"/>
+</wc-entries>

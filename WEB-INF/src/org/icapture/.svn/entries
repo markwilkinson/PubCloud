@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="457"
+   name=""
+   committed-date="2006-10-02T23:19:15.987793Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/WEB-INF/src/org/icapture"
+   last-author="bkuo"
+   kind="dir"
+   uuid="ddb880df-e0f7-0310-b7de-e4f196b62884"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="477"/>
+<entry
+   name="text"
+   kind="dir"/>
+<entry
+   name="tag"
+   kind="dir"/>
+</wc-entries>

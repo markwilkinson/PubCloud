@@ -1,0 +1,17 @@
+package org.icapture.tag.PubMed;
+
+import org.icapture.tag.Cloud;
+import org.icapture.tag.PubMed.PubMedTag;
+
+public class PubMedCloud extends Cloud {
+	
+	public PubMedCloud (String inputQuery) {
+		super(inputQuery);
+	}
+	
+	public void addTag (PubMedTag tag) {
+		tags.add(tag);
+		return;
+	}
+	
+}

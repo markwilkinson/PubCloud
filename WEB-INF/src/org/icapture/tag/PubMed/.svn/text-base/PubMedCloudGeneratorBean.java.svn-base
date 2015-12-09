@@ -1,0 +1,525 @@
+package org.icapture.tag.PubMed;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import org.icapture.text.*;
+
+public class PubMedCloudGeneratorBean {
+	
+	private String common_word_file;
+	private Hashtable commonWordHash;
+	private PorterStemmer stemmer;
+	private PubMedCloud generatedCloud;
+	private String inputQuery;
+	private String cloudType;
+	
+	/*
+	 * Default Constructor
+	 */
+	public PubMedCloudGeneratorBean() {
+
+		generatedCloud = new PubMedCloud(inputQuery);
+		inputQuery = "";
+		stemmer = new PorterStemmer();
+		
+		common_word_file = "/usr/local/tomcat/webapps/common_words.txt";
+		//common_word_file = "D:\\common_words.txt";
+		commonWordHash = new Hashtable();
+		
+		// Read the common words into the hash
+		FileReader in;	BufferedReader in_buffer;
+		
+		try {
+			in = new FileReader(common_word_file);
+			in_buffer = new BufferedReader(in);
+			String common_word;
+			try {
+				while ((common_word = in_buffer.readLine()) != null) {
+					commonWordHash.put(common_word, new Integer(0));
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean mainBuildCloud (String keyword, String startYear, String endYear, String option) {
+		inputQuery = keyword;
+		//generatedCloud = new PubMedCloud(inputQuery);
+
+		ArrayList<PubMedAbstract> abstractList = new ArrayList<PubMedAbstract>();
+		PubMedTextProcessor PMTxtProc = new PubMedTextProcessor();
+		
+		PubMedConnectionBean PMConnect= new PubMedConnectionBean();
+		PubMedConnectionContentParserBean PMConnectContentParser = new PubMedConnectionContentParserBean();
+		
+		String idURL = PMConnect.buildIdURL(inputQuery, startYear, endYear); // Step 1
+		String idURLContent = PMConnect.getIdURLContent(idURL); // Step 2
+		
+		String idList = PMConnectContentParser.parsePubMedId(idURLContent); // build a list of PMIDs
+		
+		if (idList != "") { // Process only if idList is not null (i.e. some IDs are returned in query)
+			String fetchURL = PMConnect.buildFetchURL(idList); // Step 3
+			String fetchContent = PMConnect.getFetchURLContent(fetchURL); // Step 4
+		
+			//System.out.println(fetchContent);
+			
+			abstractList  = PMConnectContentParser.getAbstractList(fetchContent); // build a list of abstract objects
+		
+			if (option.contains("abstract")) {
+				//System.out.println("abstract selected");
+				cloudType = "abstract";
+				generatedCloud = buildAbstractCloud (abstractList, inputQuery);
+			}
+			else if (option.contains("mesh_term")) {
+				//System.out.println("mesh_term selected");
+				cloudType = "mesh_term";
+				generatedCloud = buildMeshTermCloud(abstractList, inputQuery);
+			}
+			else if (option.contains("author")) {
+				//System.out.println("mesh_term selected");
+				cloudType = "author";
+				generatedCloud = buildAuthorCloud(abstractList, inputQuery);				
+			}
+			else {
+				//System.out.println("option is: " + option);
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public PubMedCloud buildAbstractCloud (ArrayList abstractList, String inputQuery) {
+		PubMedCloud abstractCloud = new PubMedCloud(inputQuery);
+		List<PubMedTag> tagList = new ArrayList<PubMedTag>();
+		Hashtable wordCountHash = new Hashtable(); // hash of word count
+		Hashtable wordListHash = new Hashtable();  // hash of word lists
+		Hashtable wordDateHash = new Hashtable(); // hash to store words and their years; store the latest
+		int count = 0; // count the number of tags
+		
+		Iterator <PubMedAbstract> abstractIterator = abstractList.iterator();
+		while (abstractIterator.hasNext()) {
+			
+			PubMedAbstract currentAbstract = abstractIterator.next(); // get abstract object
+			Date abstractDate = currentAbstract.getAbstractDate(); // get abstract date
+			String abstractText = currentAbstract.getAbstractText(); // get abstract text
+			String[] abstractTextArray = abstractText.split(" "); // split words into an array
+			int daySince1900 = computeDaysSince1900(abstractDate); // Compute days since 1900
+			
+			for (int abs_index = 0; abs_index < abstractTextArray.length; abs_index++) {
+				String word = abstractTextArray[abs_index]; // this word
+				//word = word.toLowerCase();
+				word = removeSymbols(word); // remove symbols
+				
+				String stemmedWord = "";
+				
+				// check for word length > 1 and word does not contain digits, and does not contain
+				// symbols like '/' or '-'
+				if ((word.length() > 1) && (! containsDigit(word)) && (! containsJoinSymbol(word))) {
+					word = word.toLowerCase();
+					stemmedWord = stemmer.stem(word); // stemming
+				}
+				else if (word.length() > 1) {
+					stemmedWord = word;
+				}
+				else {
+					stemmedWord = "";
+				}
+				
+				Integer prev = null;
+				if ( (stemmedWord.length() > 2) && (!isCommonWord(word)) && 
+					 (!stemmedWord.contains("invalid")) && (!stemmedWord.contains("term")) ) {
+					
+					if ((prev = (Integer)wordCountHash.get(stemmedWord)) != null) {
+						
+						wordCountHash.put(stemmedWord, new Integer(prev.intValue() + 1));
+				
+						/*  
+						 * Add new days to the wordDateHash
+						 * This method puts more weight on the more frequently occuring tags
+						 */	
+							Integer storedDays = (Integer)wordDateHash.get(stemmedWord);
+							Integer newDays = new Integer(storedDays.intValue() + daySince1900);
+							wordDateHash.put(stemmedWord, newDays);
+						/*------------------------------------------------------------------------------*/
+						
+						/** following segment of code is used to check if the word is already in hash **/
+						String toAddWord = (String) wordListHash.get(stemmedWord);
+						boolean addCheck = false;
+						if (toAddWord.contains(word))
+							addCheck = true;
+						/**---------------------------------------------------------------------------**/
+						
+						if (addCheck == false)
+							wordListHash.put(stemmedWord, new String(wordListHash.get(stemmedWord) + ", " + word));
+					}
+					else { // does not exist, add to hash
+						wordCountHash.put(stemmedWord, new Integer(1)); // add new word to hash & count = 1
+						wordListHash.put(stemmedWord, new String(word)); // add new word to word list hash
+						wordDateHash.put(stemmedWord, new Integer(daySince1900)); // add date to the hash
+						count++; // increment # tag count
+					}				
+				}
+			}
+		}
+		
+		int maxWordCount = 0;
+		int minTotalDays = 1000000000;
+		int maxTotalDays = 0;
+		
+		// Go through the hash keys and generate a tag object for each word
+		for (Enumeration e = wordCountHash.keys(); e.hasMoreElements();) {
+			String word = (String)e.nextElement(); // get word
+			int wordCount = ((Integer)wordCountHash.get(word)).intValue(); // get count
+			String wordList = (String) wordListHash.get(word); // get word list
+			String[] wordListArray = wordList.split(","); 
+			String representName = wordListArray[0]; // get represent name	
+			int totalDays = ((Integer)wordDateHash.get(word)).intValue(); // get total days
+			int totalDaysAverage = totalDays / wordCount;
+			
+			//System.out.print("word_count:" + wordCount);
+			
+			if (wordCount > maxWordCount) // determine maxWordCount for frequency calculation
+				maxWordCount = wordCount;
+			if (totalDaysAverage > maxTotalDays) // determine maxTotalDays for recency calculation
+				maxTotalDays = totalDaysAverage;
+			if (totalDaysAverage < minTotalDays) // determine minTotalDays for recency calculation
+				minTotalDays = totalDaysAverage;
+			
+			// set tag attributes
+			PubMedTag tag = new PubMedTag();
+			tag.setStemmedName(word);
+			tag.setCount(wordCount);
+			tag.setSimilarWordList(wordList);
+			tag.setRepresentName(representName);
+			tag.setTotalAgeDays(totalDays);	
+			tag.setTotalAgeDaysAverage(totalDaysAverage);
+			tagList.add(tag); // add to tagList
+		}
+		
+		/*
+		 * After getting all the tags, go through each and compute the
+		 * relative frequency and relative recency
+		 */
+		Iterator<PubMedTag> tagIter = tagList.iterator();
+		while (tagIter.hasNext()) {
+			PubMedTag thisTag = tagIter.next();
+			thisTag.computeFrequency(maxWordCount);
+			thisTag.computeRecency(minTotalDays, maxTotalDays);
+		}
+		
+		
+		abstractCloud.setTags(tagList);
+		
+		abstractCloud.orderBy("representName");
+		return abstractCloud;
+	}
+	
+	
+	/*
+	 * Generate a Author Cloud
+	 */
+	public PubMedCloud buildAuthorCloud (ArrayList abstractList, String inputQuery) {
+		PubMedCloud authorCloud = new PubMedCloud(inputQuery);
+		List<PubMedTag> tagList = new ArrayList<PubMedTag>();
+		Hashtable wordCountHash = new Hashtable(); // hash of word count
+		Hashtable wordDateHash = new Hashtable(); // hash to store words and their years; store the latest
+		int count = 0; // count the number of tags
+		
+		Iterator <PubMedAbstract> abstractIterator = abstractList.iterator();
+		while (abstractIterator.hasNext()) {
+			
+			PubMedAbstract currentAbstract = abstractIterator.next(); // get abstract object
+			Date abstractDate = currentAbstract.getAbstractDate(); // get abstract date
+			ArrayList authors = currentAbstract.getAuthors(); // get abstract text
+			int daySince1900 = computeDaysSince1900(abstractDate); // Compute days since 1900
+
+			System.out.println(authors);
+			
+			Iterator<String> authorIterator = authors.iterator();
+			while (authorIterator.hasNext()) {
+				String currentAuthor = authorIterator.next(); // current mesh term
+				
+				Integer prev = null;
+				if ((prev = (Integer)wordCountHash.get(currentAuthor)) != null) {
+					wordCountHash.put(currentAuthor, new Integer(prev.intValue() + 1));
+				}
+				else { // does not exist, add to hash
+					wordCountHash.put(currentAuthor, new Integer(1)); // add new word to hash & count = 1
+					wordDateHash.put(currentAuthor, new Integer(daySince1900)); // add date to the hash
+					count++; // increment # tag count
+				}	
+			}
+		}
+		
+		int maxWordCount = 0;
+		int minTotalDays = 1000000000;
+		int maxTotalDays = 0;
+		
+		// Go through the hash keys and generate a tag object for each word
+		for (Enumeration e = wordCountHash.keys(); e.hasMoreElements();) {
+			String word = (String)e.nextElement(); // get word
+			int wordCount = ((Integer)wordCountHash.get(word)).intValue(); // get count
+			int totalDays = ((Integer)wordDateHash.get(word)).intValue(); // get total days
+			int totalDaysAverage = totalDays / wordCount;
+			
+			//System.out.print("word_count:" + wordCount);
+			
+			if (wordCount > maxWordCount) // determine maxWordCount for frequency calculation
+				maxWordCount = wordCount;
+			if (totalDaysAverage > maxTotalDays) // determine maxTotalDays for recency calculation
+				maxTotalDays = totalDaysAverage;
+			if (totalDaysAverage < minTotalDays) // determine minTotalDays for recency calculation
+				minTotalDays = totalDaysAverage;
+			
+			// set tag attributes
+			PubMedTag tag = new PubMedTag();
+			tag.setStemmedName(word);
+			tag.setCount(wordCount);
+			tag.setRepresentName(word);
+			tag.setTotalAgeDays(totalDays);	
+			tag.setTotalAgeDaysAverage(totalDaysAverage);
+			tagList.add(tag); // add to tagList
+		}
+		
+		/*
+		 * After getting all the tags, go through each and compute the
+		 * relative frequency and relative recency
+		 */
+		Iterator<PubMedTag> tagIter = tagList.iterator();
+		while (tagIter.hasNext()) {
+			PubMedTag thisTag = tagIter.next();
+			thisTag.computeFrequency(maxWordCount);
+			thisTag.computeRecency(minTotalDays, maxTotalDays);
+		}
+
+		authorCloud.setTags(tagList);
+		authorCloud.orderBy("representName");
+		return authorCloud;
+	}
+	
+	
+	/*
+	 * Generate an Mesh Term Cloud
+	 */
+	public PubMedCloud buildMeshTermCloud (ArrayList abstractList, String inputQuery) {
+		PubMedCloud meshCloud = new PubMedCloud(inputQuery);
+		List<PubMedTag> tagList = new ArrayList<PubMedTag>();
+		Hashtable wordCountHash = new Hashtable(); // hash of word count
+		Hashtable wordDateHash = new Hashtable(); // hash to store words and their years; store the latest
+		int count = 0; // count the number of tags
+		
+		Iterator <PubMedAbstract> abstractIterator = abstractList.iterator();
+		while (abstractIterator.hasNext()) {
+			
+			PubMedAbstract currentAbstract = abstractIterator.next(); // get abstract object
+			Date abstractDate = currentAbstract.getAbstractDate(); // get abstract date
+			ArrayList meshTerms = currentAbstract.getMeshTerms(); // get abstract text
+			int daySince1900 = computeDaysSince1900(abstractDate); // Compute days since 1900
+
+			System.out.println(meshTerms);
+			
+			Iterator<String> meshTermIterator = meshTerms.iterator();
+			while (meshTermIterator.hasNext()) {
+				String currentTerm = meshTermIterator.next(); // current mesh term
+				
+				Integer prev = null;
+				if ((prev = (Integer)wordCountHash.get(currentTerm)) != null) {
+					wordCountHash.put(currentTerm, new Integer(prev.intValue() + 1));
+				}
+				else { // does not exist, add to hash
+					wordCountHash.put(currentTerm, new Integer(1)); // add new word to hash & count = 1
+					wordDateHash.put(currentTerm, new Integer(daySince1900)); // add date to the hash
+					count++; // increment # tag count
+				}	
+			}
+		}
+		
+		int maxWordCount = 0;
+		int minTotalDays = 1000000000;
+		int maxTotalDays = 0;
+		
+		// Go through the hash keys and generate a tag object for each word
+		for (Enumeration e = wordCountHash.keys(); e.hasMoreElements();) {
+			String word = (String)e.nextElement(); // get word
+			int wordCount = ((Integer)wordCountHash.get(word)).intValue(); // get count
+			int totalDays = ((Integer)wordDateHash.get(word)).intValue(); // get total days
+			int totalDaysAverage = totalDays / wordCount;
+			
+			//System.out.print("word_count:" + wordCount);
+			
+			if (wordCount > maxWordCount) // determine maxWordCount for frequency calculation
+				maxWordCount = wordCount;
+			if (totalDaysAverage > maxTotalDays) // determine maxTotalDays for recency calculation
+				maxTotalDays = totalDaysAverage;
+			if (totalDaysAverage < minTotalDays) // determine minTotalDays for recency calculation
+				minTotalDays = totalDaysAverage;
+			
+			// set tag attributes
+			PubMedTag tag = new PubMedTag();
+			tag.setStemmedName(word);
+			tag.setCount(wordCount);
+			tag.setRepresentName(word);
+			tag.setTotalAgeDays(totalDays);	
+			tag.setTotalAgeDaysAverage(totalDaysAverage);
+			tagList.add(tag); // add to tagList
+		}
+		
+		/*
+		 * After getting all the tags, go through each and compute the
+		 * relative frequency and relative recency
+		 */
+		Iterator<PubMedTag> tagIter = tagList.iterator();
+		while (tagIter.hasNext()) {
+			PubMedTag thisTag = tagIter.next();
+			thisTag.computeFrequency(maxWordCount);
+			thisTag.computeRecency(minTotalDays, maxTotalDays);
+		}
+
+		meshCloud.setTags(tagList);
+		meshCloud.orderBy("representName");
+		return meshCloud;
+	}
+	
+	
+	public String generateHtmlCloud () {
+		String cloudHTML = "";
+		
+		List tagList = generatedCloud.getTags();
+		Iterator<PubMedTag> tagIter = tagList.iterator();
+		
+		String PubMedLink = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?DB=pubmed&term=";
+		
+		while (tagIter.hasNext()) {
+			PubMedTag tag = tagIter.next();
+
+			String tagName = tag.getRepresentName(); // name to be displayed
+			String tagWordList = tag.getSimilarWordList(); // similar word list
+			int tagFrequency = tag.getFrequency(); // frequency
+			int tagRecency = tag.getRecency(); // recency
+			
+			//if (cloudType == "abstract") {
+				if (tagFrequency > 1) {
+					String inputQuerySplit = inputQuery.replace(' ', '+');
+				
+					cloudHTML = cloudHTML + "<a class=\"tag_cloud_frequency_" + tagFrequency +
+								" tag_cloud_recency_" + tagRecency + "\" href=\"" + PubMedLink + 
+								inputQuerySplit + "+" + tagName + "\" target=\"blank\" title=\"" + tagWordList + "\" > " + 
+								tagName + "</a>" + "</font> \n";
+				}	
+				/*
+			}
+			else if (cloudType == "mesh_term") {	
+				String inputQuerySplit = inputQuery.replace(' ', '+');
+				
+				cloudHTML = cloudHTML + "<a class=\"tag_cloud_frequency_" + tagFrequency +
+							" tag_cloud_recency_" + tagRecency + "\" href=\"" + PubMedLink + 
+							inputQuerySplit + "+" + tagName + "\" target=\"blank\" title=\"" + tagWordList + "\" > " + 
+							tagName + "</a>" + "</font> \n";				
+			}
+			*/
+
+		}
+		return cloudHTML;
+	}
+	
+	
+	private int computeDaysSince1900 (Date abstractDate) {
+		int year = abstractDate.getYear();
+		int month = abstractDate.getMonth();
+		int day = abstractDate.getDate();
+		int daysSince1900 = (year-1900)*365 + month * 30 + day;
+		return daysSince1900;
+	}
+	
+	
+	/**************************************************
+	 * Checks if a word is a common word
+	 * 
+	 * @param
+	 * @return  
+	 **************************************************/ 
+	private boolean isCommonWord (String word) {
+		Integer prev = null;
+		if ((prev = (Integer)commonWordHash.get(word)) != null)
+			return true;
+		else 
+			return false;
+	}
+	
+	
+	/**************************************************
+	 * Method that checks if the word contains a digit
+	 * 
+	 * @param
+	 * @return  
+	 **************************************************/ 
+	private boolean containsDigit (String word) {
+		if ( word.contains("0") || word.contains("1") || word.contains("2") || word.contains("3") || 
+			 word.contains("4") || word.contains("5") || word.contains("6") || word.contains("7") || 
+			 word.contains("8") || word.contains("9") )
+			return true;
+		else
+			return false;
+	}
+	
+	
+	/**************************************************
+	 * Method that checks if the word contains a join symbol
+	 * 
+	 * @param
+	 * @return  
+	 **************************************************/ 
+	private boolean containsJoinSymbol (String word) {
+
+		if ( word.contains("-") || word.contains("_") || word.contains("/") || word.contains("://"))
+				return true;
+			else
+				return false;
+	}
+	
+	
+	/*************************************************************************
+	 * Stem word-by-word the abstract text using Porter's Stemming Algorithm *
+	 * 
+	 * @param
+	 * @return  
+	 *************************************************************************/
+	private String removeSymbols (String word) {
+		String tempWord = word;
+		
+		// Remove unnecessary symbols
+		tempWord = tempWord.replace("(", "");	tempWord = tempWord.replace(")", "");
+		tempWord = tempWord.replace("_", ""); 	tempWord = tempWord.replace("&", "");
+		tempWord = tempWord.replace("%", ""); 	tempWord = tempWord.replace("+", "");
+		tempWord = tempWord.replace("=", ""); 	tempWord = tempWord.replace("*", "");
+		tempWord = tempWord.replace("^", "");	tempWord = tempWord.replace("$", "");
+		tempWord = tempWord.replace("#", "");	tempWord = tempWord.replace("@", "");
+		tempWord = tempWord.replace("~", "");	tempWord = tempWord.replace("`", "");
+		tempWord = tempWord.replace("?", "");	tempWord = tempWord.replace("|", "");
+		tempWord = tempWord.replace("{", "");	tempWord = tempWord.replace("}", "");
+		tempWord = tempWord.replace("[", "");	tempWord = tempWord.replace("]", "");
+		tempWord = tempWord.replace("<", "");	tempWord = tempWord.replace(",", "");
+		tempWord = tempWord.replace(".", "");	tempWord = tempWord.replace(":", "");
+		tempWord = tempWord.replace("!", "");	tempWord = tempWord.replace("\\", "");
+		tempWord = tempWord.replace("\"", "");	tempWord = tempWord.replace("\'", "");
+
+		return tempWord;
+	}
+	
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="424"
+   name=""
+   committed-date="2006-09-05T17:21:57.793063Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/WEB-INF/src/org/icapture/text"
+   last-author="bkuo"
+   kind="dir"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="445"/>
+<entry
+   committed-rev="424"
+   name="common_words.txt"
+   text-time="2006-08-14T18:40:42.932384Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="542127fb20acdd7a57cc19f19c046b33"
+   last-author="bkuo"
+   kind="file"/>
+<entry
+   committed-rev="424"
+   name="PorterStemmer.java"
+   text-time="2006-08-14T18:29:38.677232Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="bc23842184fc24f7806b369006e6f55f"
+   last-author="bkuo"
+   kind="file"/>
+</wc-entries>

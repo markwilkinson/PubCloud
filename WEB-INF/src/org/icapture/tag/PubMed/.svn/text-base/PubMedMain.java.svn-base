@@ -1,0 +1,99 @@
+package org.icapture.tag.PubMed;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+
+public class PubMedMain {
+	
+	public static void main (String[] args) {
+		/*
+		String inputQuery = "icapture";
+		ArrayList<PubMedAbstract> abstractList = new ArrayList<PubMedAbstract>();
+		PubMedTextProcessor PMTxtProc = new PubMedTextProcessor();
+		
+		PubMedConnectionBean PMConnect= new PubMedConnectionBean();
+		PubMedConnectionContentParserBean PMConnectContentParser = new PubMedConnectionContentParserBean();
+		
+		String idURL = PMConnect.buildIdURL(inputQuery, "2006", "2006"); // Step 1
+		String idURLContent = PMConnect.getIdURLContent(idURL); // Step 2
+		
+		//System.out.println(idURLContent);
+		
+		// ----------- Test ID List ONE BIG SUBMISSION ---------------//
+		
+		String idList = PMConnectContentParser.parsePubMedId(idURLContent);
+		
+		String fetchURL = PMConnect.buildFetchURL(idList);
+		String fetchContent = PMConnect.getFetchURLContent(fetchURL);
+
+		//System.out.println (fetchContent);
+		
+		abstractList  = PMConnectContentParser.getAbstractList(fetchContent);
+		*/
+		
+		PubMedCloudGeneratorBean CloudGen = new PubMedCloudGeneratorBean();
+		
+		CloudGen.mainBuildCloud("icapture", "2006", "2006", "author");
+		
+		String cloudHTML = CloudGen.generateHtmlCloud();
+		
+		System.out.println(cloudHTML);
+		
+		//PubMedCloud PubCloud = CloudGen.buildAbstractCloud(abstractList, inputQuery);
+
+		// -------------- Test Getting Tag Info from Cloud Object -------------- //
+		/*
+		List tagList = PubCloud.getTags();
+		Iterator<PubMedTag> tagIter = tagList.iterator();
+		while (tagIter.hasNext()) {
+			PubMedTag tag = tagIter.next();
+			System.out.println ("Name: " + tag.getRepresentName() + "; Frequency: " + tag.getFrequency() +
+								"; Recency: " + tag.getRecency());
+		}
+		*/
+		// --------------------------------------------------------------------- //
+		
+		// ----------------- Test Abstract list printout ----------------- //
+		/*
+		Iterator <PubMedAbstract> abstractIterator = abstractList.iterator();
+		while (abstractIterator.hasNext()) {
+			PubMedAbstract currentAbstract = abstractIterator.next();
+			System.out.println("PMID: " + currentAbstract.getPMID());
+			System.out.println("Title: " + currentAbstract.getAbstractTitle());
+			System.out.println("Abstract: " + currentAbstract.getAbstractText());
+			System.out.println("Date: " + currentAbstract.getAbstractDate());
+			System.out.println("Authors: " + currentAbstract.getAuthors());
+			System.out.println("Mesh Terms: " + currentAbstract.getMeshTerms());
+			System.out.println("");
+		}
+		*/
+		// --------------------- End Test -------------------------------- //
+		
+		/*
+		// go through the ID's
+		for (int i = 0; i < idArray.length; i++) {
+			String id = idArray[i];
+			
+			String fetchURL = PMConnect.buildFetchURL(id); // Step 3
+			String fetchContent  = PMConnect.getFetchURLContent(fetchURL); // Step 4
+			
+			String originalIdAbstract = PMConnectContentParser.parsePubMedAbstract(fetchContent);
+			Date idAbstractDate = PMConnectContentParser.parseAbstractDate(fetchContent);
+			
+			String stemmedIdAbstract = PMTxtProc.stemText(originalIdAbstract);
+			
+			PubMedAbstract PMAbstract = new PubMedAbstract(originalIdAbstract, stemmedIdAbstract, idAbstractDate);
+			
+			System.out.println(stemmedIdAbstract);
+
+			//String summaryURL = PMConnect.buildSummaryURL(id); // Step 5
+			//String summaryContent = PMConnect.getSummaryURLContent(summaryURL); // Step 6
+		}
+		*/
+		
+		
+	}
+	
+}

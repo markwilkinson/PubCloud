@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="317"
+   name=""
+   committed-date="2006-08-08T19:19:18.937359Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/PubCloud/work"
+   last-author="bkuo"
+   kind="dir"
+   uuid="ddb880df-e0f7-0310-b7de-e4f196b62884"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="477"/>
+<entry
+   committed-rev="424"
+   name="tldCache.ser"
+   text-time="2006-08-17T18:44:14.583062Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/work/tldCache.ser"
+   checksum="bf24979d00f3c4c4c6e842de9817754d"
+   last-author="bkuo"
+   kind="file"
+   prop-time="2006-09-05T17:21:56.607304Z"
+   revision="445"/>
+<entry
+   name="org"
+   kind="dir"/>
+<entry
+   committed-rev="482"
+   name="SESSIONS.ser"
+   text-time="2006-10-20T17:53:09.794091Z"
+   committed-date="2006-10-20T17:59:56.075969Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/work/SESSIONS.ser"
+   checksum="3bdbf73cd646221d2fe89c1e5b884b16"
+   last-author="bkuo"
+   kind="file"
+   prop-time="2006-09-05T17:21:56.797577Z"
+   revision="482"/>
+</wc-entries>

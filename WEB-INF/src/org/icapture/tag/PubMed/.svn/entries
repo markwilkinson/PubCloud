@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="457"
+   name=""
+   committed-date="2006-10-02T23:19:15.987793Z"
+   url="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION/freaky/20060905-PubCloud/WEB-INF/src/org/icapture/tag/PubMed"
+   last-author="bkuo"
+   kind="dir"
+   uuid="ddb880df-e0f7-0310-b7de-e4f196b62884"
+   repos="svn://bioinfo.icapture.ubc.ca:9000/CODE/SUBVERSION"
+   revision="477"/>
+<entry
+   committed-rev="457"
+   name="PubMedCloudGeneratorBean.java"
+   text-time="2006-09-27T22:12:06.096931Z"
+   committed-date="2006-10-02T23:19:15.987793Z"
+   checksum="904b114e7a4f4814ee50985d696b76c1"
+   last-author="bkuo"
+   kind="file"
+   revision="457"/>
+<entry
+   committed-rev="424"
+   name="PubMedAbstract.java"
+   text-time="2006-08-25T23:01:11.914881Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="82c143aef7fac35a9f6ed3feaf85406b"
+   last-author="bkuo"
+   kind="file"
+   revision="445"/>
+<entry
+   committed-rev="424"
+   name="PubMedTextProcessor.java"
+   text-time="2006-08-16T23:44:08.529996Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="b19886bdd9bb5f43e884eb459c274878"
+   last-author="bkuo"
+   kind="file"
+   revision="445"/>
+<entry
+   committed-rev="457"
+   name="PubMedMain.java"
+   text-time="2006-09-25T20:55:28.714110Z"
+   committed-date="2006-10-02T23:19:15.987793Z"
+   checksum="47fa7aa03e6c7096fc88759b5de79cc4"
+   last-author="bkuo"
+   kind="file"
+   revision="457"/>
+<entry
+   committed-rev="424"
+   name="PubMedConnectionBean.java"
+   text-time="2006-08-25T21:23:17.367697Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="8fce664196f779e2a832527e704f8a79"
+   last-author="bkuo"
+   kind="file"
+   revision="445"/>
+<entry
+   committed-rev="424"
+   name="PubMedCloud.java"
+   text-time="2006-08-31T21:22:41.975913Z"
+   committed-date="2006-09-05T17:21:57.793063Z"
+   checksum="0c1cb1870e9b0f26cc0e3c9de9dacdd4"
+   last-author="bkuo"
+   kind="file"
+   revision="445"/>
+<entry
+   committed-rev="446"
+   name="PubMedTag.java"
+   text-time="2006-09-11T19:14:16.849036Z"
+   committed-date="2006-09-15T21:27:07.887484Z"
+   checksum="ee0f08ef6f5bf9969402e362a7c030b2"
+   last-author="bkuo"
+   kind="file"
+   revision="446"/>
+<entry
+   committed-rev="457"
+   name="PubMedConnectionContentParserBean.java"
+   text-time="2006-09-15T22:27:00.758539Z"
+   committed-date="2006-10-02T23:19:15.987793Z"
+   checksum="e0d628480d9693e4168ff302ce52d86c"
+   last-author="bkuo"
+   kind="file"
+   revision="457"/>
+</wc-entries>

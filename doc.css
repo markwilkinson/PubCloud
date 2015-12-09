@@ -1,0 +1,207 @@
+a:link {
+	text-decoration: none;
+}
+
+a:visited {
+	text-decoration: none;
+}
+
+a:hover {
+	background-color: #55FF55;
+}
+
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 0.8em;
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	background-color: #FFFFFF;
+}
+
+H1 {
+	COLOR: #6666CC;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+	TEXT-TRANSFORM: capitalize
+}
+
+H2 {
+	COLOR: #6666CC;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+	TEXT-TRANSFORM: capitalize
+}
+
+H3 {
+	COLOR: #6666CC;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+}
+
+H4 {
+	COLOR: #6666CC;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+	TEXT-TRANSFORM: capitalize
+}
+
+H5 {
+	COLOR: #6666CC;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+	TEXT-TRANSFORM: capitalize
+}
+
+H6 {
+	COLOR: #6666CC;
+	FONT-FAMILY: Arial, Helvetica, sans-serif;
+	TEXT-TRANSFORM: capitalize
+}
+
+TH {
+	color: #6060cc
+}
+
+TD {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 0.8em;
+}
+
+.tbhd {
+	color: #2222B2;
+	font-weight: bold;
+}
+
+.lb {
+	background-color: #D1D1FA;
+}
+
+.lbd {
+	background-color: #CCCCCC;
+}
+
+.emp {
+	color: red;
+	font-style: bold;
+	font-weight: bolder;
+}
+
+.key {
+	color: blue;
+	font-style: bold;
+	font-weight: bolder;
+}
+
+.sugg {
+	font-style: italic;
+	font-weight: bolder;
+}
+
+.fine_print {
+	color: grey;
+	font-size: 0.7em;
+}
+
+.option_text {
+	font-size: 0.8em;
+}
+
+.option_title {
+	font-style: bold;
+	font-weight: bolder;
+	font-size: 0.8em;
+}
+
+.option_panel_title {
+	font-size: 0.9em;
+	color: #6666CC;
+	font-style: bold;
+	font-weight: bolder;
+	font-family: Arial, Helvetica, sans-serif;
+	text-transform: capitalize;
+}
+
+a.tag_cloud_frequency_0 {
+	font-size: 5px
+}
+
+a.tag_cloud_frequency_1 {
+	font-size: 10px
+}
+
+a.tag_cloud_frequency_2 {
+	font-size: 15px
+}
+
+a.tag_cloud_frequency_3 {
+	font-size: 20px
+}
+
+a.tag_cloud_frequency_4 {
+	font-size: 25px
+}
+
+a.tag_cloud_frequency_5 {
+	font-size: 30px
+}
+
+a.tag_cloud_frequency_6 {
+	font-size: 35px
+}
+
+a.tag_cloud_frequency_7 {
+	font-size: 40px
+}
+
+a.tag_cloud_frequency_8 {
+	font-size: 45px
+}
+
+a.tag_cloud_frequency_9 {
+	font-size: 50px
+}
+
+a.tag_cloud_frequency_10 {
+	font-size: 55px
+}
+
+a.tag_cloud_recency_0 {
+	color: #5B7884
+}
+
+a.tag_cloud_recency_1 {
+	color: #5B7884
+}
+
+a.tag_cloud_recency_2 {
+	color: #94AAB5
+}
+
+a.tag_cloud_recency_3 {
+	color: #94AAB5
+}
+
+a.tag_cloud_recency_4 {
+	color: #C0B0C4
+}
+
+a.tag_cloud_recency_5 {
+	color: #C0B0C4
+}
+
+a.tag_cloud_recency_6 {
+	color: #C0B0C4
+}
+
+a.tag_cloud_recency_7 {
+	color: #FF8499
+}
+
+a.tag_cloud_recency_8 {
+	color: #FF8499
+}
+
+a.tag_cloud_recency_9 {
+	color: #EA1A29
+}
+
+a.tag_cloud_recency_10 {
+	color: #EA1A29
+}

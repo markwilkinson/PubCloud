@@ -1,0 +1,148 @@
+package org.icapture.tag.PubMed;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Hashtable;
+
+import org.icapture.text.*;
+
+public class PubMedTextProcessor {
+	
+	private String common_word_file;
+	private Hashtable commonWordHash;
+	private PorterStemmer stemmer;
+	
+	/***********************
+	 * Default Constructor *
+	 ***********************/
+	public PubMedTextProcessor () {
+		
+		stemmer = new PorterStemmer();
+		
+		//common_word_file = "/usr/local/tomcat/webapps/PubCloud/common_words.txt";
+		common_word_file = "D:\\common_words.txt";
+
+		commonWordHash = new Hashtable();
+		
+		//---------- Read the common words into hash ----------//
+		FileReader in;
+		BufferedReader in_buffer;
+		try {
+			in = new FileReader(common_word_file);
+			in_buffer = new BufferedReader(in);
+			String common_word;
+			try {
+				while ((common_word = in_buffer.readLine()) != null) {
+					commonWordHash.put(common_word, new Integer(0));
+				}
+					
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/*************************************
+	 * Method used to stem text          *
+	 * using Porter's Stemming Algorithm *
+	 * 
+	 * @param
+	 * @return
+	 *************************************/
+	public String stemText (String originalText) {
+		String stemmedText = "";
+		
+		originalText = removeSymbols(originalText); // Remove Symbols
+		String[] wordArray = originalText.split(" "); // Split into words
+		
+		// Go through each word
+		for (int i = 0; i < wordArray.length; i++) {
+			String word = wordArray[i];
+			
+			if ((word.length() > 1) && (! containsDigit(word)) && (! containsJoinSymbol(word))) {
+				word = word.toLowerCase();
+				stemmedText = stemmedText + " " + stemmer.stem(word); // stemming & add to stemmedText
+			}
+			else if (word.length() > 1) {
+				stemmedText = stemmedText + " " + word;
+			}
+		}
+		return stemmedText;
+	}
+	
+	
+	/***************************************************
+	 * Method used to check if a word is a common word *
+	 * 
+	 * @param
+	 * @return  
+	 ***************************************************/ 
+	private boolean isCommonWord (String word) {
+		Integer prev = null;
+		if ((prev = (Integer)commonWordHash.get(word)) != null)
+			return true;
+		else
+			return false;
+	}
+	
+	/*****************************************************
+	 * Method used to check if the word contains a digit *
+	 * 
+	 * @param
+	 * @return  
+	 *****************************************************/ 
+	private boolean containsDigit (String word) {
+		if ( word.contains("0") || word.contains("1") || word.contains("2") || word.contains("3") || 
+			 word.contains("4") || word.contains("5") || word.contains("6") || word.contains("7") || 
+			 word.contains("8") || word.contains("9") )
+			return true;
+		else 
+			return false;
+	}
+	
+	/***********************************************************
+	 * Method used to check if the word contains a join symbol *
+	 * 
+	 * @param
+	 * @return  
+	 ***********************************************************/ 
+	private boolean containsJoinSymbol (String word) {
+		if ( word.contains("-") || word.contains("_") || word.contains("/") || word.contains("://"))
+				return true;
+		else
+			return false;
+	}
+	
+	/*********************************************
+	 * Method used to remove unnecessary symbols *
+	 * 
+	 * @param
+	 * @return  
+	 *********************************************/
+	private String removeSymbols (String word) {
+
+		String tempWord = word;
+		tempWord = tempWord.replace("(", ""); tempWord = tempWord.replace(")", "");
+		tempWord = tempWord.replace("_", ""); tempWord = tempWord.replace("&", "");
+		tempWord = tempWord.replace("%", ""); tempWord = tempWord.replace("+", "");
+		tempWord = tempWord.replace("=", ""); tempWord = tempWord.replace("*", "");
+		tempWord = tempWord.replace("^", ""); tempWord = tempWord.replace("$", "");
+		tempWord = tempWord.replace("#", ""); tempWord = tempWord.replace("@", "");
+		tempWord = tempWord.replace("~", ""); tempWord = tempWord.replace("`", "");
+		tempWord = tempWord.replace("?", ""); tempWord = tempWord.replace("|", "");
+		tempWord = tempWord.replace("{", ""); tempWord = tempWord.replace("}", "");
+		tempWord = tempWord.replace("[", ""); tempWord = tempWord.replace("]", "");
+		tempWord = tempWord.replace("<", ""); tempWord = tempWord.replace(",", "");
+		tempWord = tempWord.replace(".", ""); tempWord = tempWord.replace(":", "");
+		tempWord = tempWord.replace("!", ""); tempWord = tempWord.replace("\\", "");
+		tempWord = tempWord.replace("\"", ""); tempWord = tempWord.replace("\'", "");
+		return tempWord;
+	}
+}

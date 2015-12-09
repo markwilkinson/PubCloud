@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="iPubCloud"
+				 render_inline="optional"
+				 height="280"
+				 category="technology"
+				 author="Byron Kuo"
+				 author_email="bkuo@mrl.ubc.ca"
+				 author_location="Vancouver, BC, Canada"
+				 author_affiliation="James Hogg iCAPTURE Centre for Cardiovascular and Pulmonary Research"
+				 description="Summarize your PubMed search in a (reduced) tag cloud form."
+				 screenshot="http://bioinfo.icapture.ubc.ca:8090/PubCloud/images/ipubcloud-screen.png"
+				 thumbnail="http://bioinfo.icapture.ubc.ca:8090/PubCloud/images/ipubcloud-thumb.png">
+	</ModulePrefs>
+
+<UserPref name="title" display_name="Title" default_value="iPubCloud" datatype="string" required="true"/>
+
+<Content type="html"><![CDATA[
+
+	<style>
+	body {
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+		font-size: 0.9em;
+		margin-left: 0px;
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 0px;
+		background-color: #FFFFFF;
+	}
+	</style>
+	<script type="text/javascript">
+	function getInputText() {
+		value = document.SampleForm.myText.value.toUpperCase()
+		return value
+	}
+	
+	function getCookie(c_name)
+	{
+		if (document.cookie.length>0)
+	  	{
+	  		c_start=document.cookie.indexOf(c_name + "=")
+	  		if (c_start!=-1)
+	    	{ 
+	    		c_start=c_start + c_name.length+1 
+	    		c_end=document.cookie.indexOf(";",c_start)
+	    		if (c_end==-1) c_end=document.cookie.length
+	    		return unescape(document.cookie.substring(c_start,c_end))
+	    	} 
+	  	}
+		return ""
+	}
+	
+	function setCookie(c_name, value, expiredays)
+	{
+		var exdate=new Date()
+		exdate.setDate(exdate.getDate()+expiredays)
+		document.cookie=c_name+ "=" +escape(value)+
+			((expiredays==null) ? "" : ";expires="+exdate.toGMTString())
+	}
+	
+	function checkCookie()
+	{
+		querystring=getCookie('query')
+		if (querystring!=null && querystring!="")
+	 	{
+	 		window.location="http://localhost:8080/PubCloudZ/jc.jsp?query=" + querystring
+	 	}
+	}
+	
+	function setClickCookie()
+	{
+	  	var textfield = document.getElementById('query-field')
+	  		
+	  	querystring=textfield.value
+	  		
+	  	if (querystring!=null && querystring!="") {
+		    setCookie('query',querystring,365)    		
+	    }
+	}
+	
+	</script>
+	<BODY ONLOAD="checkCookie()">
+	<FONT color="blue"><B>iPubCloud</B></FONT><BR>
+	<FORM method="GET" action="http://bioinfo.icapture.ubc.ca:8090/PubCloud/pc.jsp">
+	Query: <INPUT TYPE="text" NAME="query" SIZE="13">
+	<INPUT TYPE="submit" VALUE="Get Cloud" ONCLICK="setClickCookie()">
+	</FORM>
+	</BODY>
+]]></Content>
+</Module> 

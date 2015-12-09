@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<ModulePrefs title="iPubCloud" render_inline="optional" height="280"
+		category="technology" author="Byron Kuo"
+		author_email="bkuo@mrl.ubc.ca" author_location="Vancouver, BC, Canada"
+		author_affiliation="James Hogg iCAPTURE Centre for Cardiovascular and Pulmonary Research"
+		description="Summarize your PubMed search in a (reduced) tag cloud form."
+		screenshot="http://bioinfo.icapture.ubc.ca:8090/PubCloud/images/ipubcloud-screen.png"
+		thumbnail="http://bioinfo.icapture.ubc.ca:8090/PubCloud/images/ipubcloud-thumb.png">
+	</ModulePrefs>
+
+	<UserPref name="title" display_name="Title"
+		default_value="iPubCloud" datatype="string" required="true" />
+
+	<Content type="html"><![CDATA[
+	<center>
+		<iframe src="http://bioinfo.icapture.ubc.ca:8090/PubCloud/pc.jsp" width="280" height="280" scrolling="no" name="bible-query">
+		</iframe>
+	</center>
+]]></Content>
+</Module>

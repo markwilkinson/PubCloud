@@ -1,0 +1,203 @@
+package org.icapture.tag.PubMed;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Hashtable;
+
+public class PubMedConnectionBean {
+	
+	private String db;
+	private int maxNumArticle;
+	
+	
+	/***********************
+	 * Default Constructor *
+	 ***********************/ 
+	public PubMedConnectionBean () {
+		db = "pubmed";
+		maxNumArticle = 100;		
+	}
+	
+	
+	
+	/*********************************************
+	 * Step 1
+	 * Method used to build URL to search for ID *
+	 * 
+	 * @param	search term, start year, end year
+	 * @return  constructed URL for step 2 search
+	 *********************************************/
+	public String buildIdURL (String term, String startYear, String endYear) {
+		
+		String baseIdURL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?";
+		String queryTerm = term.replace(' ', '+');
+		String queryMode = "xml";
+		String constructedURL = baseIdURL + "db=" + db + "&term="+ queryTerm + 
+								"&retmode=" + queryMode + "&retmax=" + maxNumArticle + 
+								"&mindate=" + startYear + "&maxdate=" + endYear;
+		
+		return constructedURL;
+	}
+	
+	
+	
+	/********************************************************
+	 * Step 2
+	 * Method used to connecto to NCBI to get a list of IDs *
+	 * 
+	 * @param	constructed URL from Step 1
+	 * @return  a list of IDs in XML format
+	 ********************************************************/ 
+	public String getIdURLContent (String url) {
+		
+		String content = "";
+		String lineContent = "";
+		URL urlConnect; // First create a URL bean
+		
+		try {
+			urlConnect = new URL (url);
+			InputStream in = urlConnect.openStream();
+			DataInputStream dataIn = new DataInputStream(new BufferedInputStream(in));
+
+			try {
+				while ((lineContent = dataIn.readLine()) != null) {
+					content = content + lineContent;
+				}
+			}
+			catch (FileNotFoundException e) {
+				System.out.println(e);
+			}
+			in.close();
+		}
+		catch (MalformedURLException e){
+			System.out.println(e);
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+		
+		return content;
+	}
+	
+	
+	
+	/**********************************************
+	 * Step 3
+	 * Method used to build URL to fetch abstract *
+	 * 
+	 * @param	a PubMedID
+	 * @return  consructed URL for step 4 search
+	 **********************************************/
+	public String buildFetchURL (String id) {
+		
+		String baseFetchURL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?";
+		String dbQuery = "db=";
+		String idQuery = "id=";
+		String modeQuery = "retmode=";
+		String mode = "text";
+		String typeQuery = "rettype=";
+		String type = "medline";
+		String constructedURL = baseFetchURL + dbQuery + db + "&" + idQuery + id + "&" + 
+							    modeQuery + mode + "&" + typeQuery + type;
+		
+		return constructedURL;
+	}
+	
+	
+	
+	/***************************************************************
+	 * Step 4
+	 * Method used to connecto to NCBI to Fetch Literature Content *
+	 *                                                             *
+	 * @param url                                                  *
+	 * @return Fetched Content in XML format                       *
+	 ***************************************************************/ 
+	public String getFetchURLContent (String url) {
+		String fetch = "";
+		String lineFetch = "";
+		URL urlFetch; // First create a URL bean
+
+		try {
+			urlFetch = new URL (url);
+			InputStream in = urlFetch.openStream();
+			DataInputStream dataIn = new DataInputStream(new BufferedInputStream(in));
+
+			try {
+				while ((lineFetch = dataIn.readLine()) != null) {
+					fetch = fetch + lineFetch + "\n";
+				}
+			}
+			catch (FileNotFoundException e) {
+				System.out.println(e);
+			}
+			in.close();
+		}
+		catch (MalformedURLException e){
+			System.out.println(e);
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+		return fetch;
+	}
+	
+	
+	
+	/**************************************************
+	 * Step 5 (optional)
+	 * Method used to build URL to search for summary *
+	 * 
+	 * @param
+	 * @return  
+	 **************************************************/ 
+	public String buildSummaryURL (String id) {
+		
+		String baseSummaryURL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?";
+		String dbQuery = "db=";
+		String idQuery = "id=";
+		String constructedURL = baseSummaryURL + dbQuery + db + "&" + idQuery + id;
+		
+		return constructedURL;
+	}
+	
+	
+	
+	/**********************************************************************
+	 * Step 6 (optional)
+	 * Method used to connecto to NCBI to get literature summary of an ID *
+	 * Summary contains author information, but no abastract
+	 * @param
+	 * @return  
+	 **********************************************************************/ 
+	public String getSummaryURLContent (String url) {
+		String summary = "";
+		String lineSummary = "";
+		URL urlSummary; // First create a URL bean
+
+		try {
+			urlSummary = new URL (url);
+			InputStream in = urlSummary.openStream();
+			DataInputStream dataIn = new DataInputStream(new BufferedInputStream(in));
+
+			try {
+				while ((lineSummary = dataIn.readLine()) != null) {
+					summary = summary + lineSummary + "\n";
+				}
+			}
+			catch (FileNotFoundException e) {
+				System.out.println(e);
+			}
+			
+			in.close();
+		}
+		catch (MalformedURLException e){
+			System.out.println(e);
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+		return summary;
+	}
+	
+}
